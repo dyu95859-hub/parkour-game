@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1b1033">
+<meta name="description" content="《墙影狂奔》—— 被影子追逐的城市跑酷小游戏。每隔 10 秒出现一面墙，做出正确动作才能通过！">
+<title>墙影狂奔 · 跑酷小游戏</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%231b1033%27/%3E%3Crect x=%2740%27 y=%2712%27 width=%2712%27 height=%2744%27 fill=%27%23e0592a%27/%3E%3Ccircle cx=%2722%27 cy=%2720%27 r=%276%27 fill=%27%23ffd9b8%27/%3E%3Cpath d=%27M22 27 L18 42 L10 52 M18 42 L28 52 M21 30 L30 36%27 stroke=%27%2319c3b5%27 stroke-width=%275%27 stroke-linecap=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="game" width="960" height="540" aria-label="游戏画面"></canvas>
+
+    <!-- 侧边信息面板 -->
+    <aside id="hud" class="hidden" aria-live="off">
+      <div class="hud-dist">
+        <div class="hud-label">距离</div>
+        <div class="hud-big"><span id="hud-dist">0</span><small>米</small></div>
+      </div>
+      <div class="hud-row"><span>分数</span><b id="hud-score">0</b></div>
+      <div class="hud-row"><span>最高</span><b id="hud-best">0</b></div>
+      <div class="hud-row"><span>速度</span><b id="hud-speed">0</b></div>
+      <div class="hud-row"><span>穿墙</span><b id="hud-walls">0</b></div>
+      <div class="hud-wall">
+        <div class="hud-row"><span>下一面墙</span><b id="hud-next">10.0 秒</b></div>
+        <div class="bar"><i id="hud-next-bar"></i></div>
+      </div>
+      <div class="hud-chaser" id="hud-chaser-box">
+        <div class="hud-row"><span>追兵距离</span><b id="hud-gap">10.0 米</b></div>
+        <div class="bar danger"><i id="hud-gap-bar"></i></div>
+      </div>
+    </aside>
+
+    <!-- 顶部按钮 -->
+    <div id="topbar">
+      <button id="btn-music" class="tb" type="button">音乐：开</button>
+      <button id="btn-sfx" class="tb" type="button">音效：开</button>
+      <button id="btn-pause" class="tb hidden" type="button">暂停</button>
+    </div>
+
+    <!-- 触屏按钮 -->
+    <div id="touch" class="hidden">
+      <div class="tgroup left">
+        <button class="tbtn" data-act="left" type="button">←</button>
+        <button class="tbtn" data-act="right" type="button">→</button>
+      </div>
+      <div class="tgroup right">
+        <button class="tbtn smash" data-act="smash" type="button">破</button>
+        <button class="tbtn" data-act="down" type="button">↓</button>
+        <button class="tbtn big" data-act="up" type="button">↑</button>
+      </div>
+    </div>
+
+    <!-- 开始界面 -->
+    <section id="screen-start" class="screen">
+      <div class="panel">
+        <h1>墙影狂奔</h1>
+        <p class="sub">黑影在身后穷追不舍——跑！跳！滑！每隔 <b>10 秒</b>就会出现一面墙，做出正确动作才能冲过去。</p>
+        <div class="cols">
+          <div class="col">
+            <h3>基本操作</h3>
+            <ul>
+              <li><kbd>↑</kbd>/<kbd>W</kbd>/<kbd>空格</kbd> 跳跃（空中可二段跳）</li>
+              <li><kbd>↓</kbd>/<kbd>S</kbd> 滑铲（按住持续）</li>
+              <li>低栏、坑洞要跳，横杆要滑</li>
+              <li><kbd>P</kbd> 暂停　<kbd>M</kbd> 音乐　<kbd>N</kbd> 音效</li>
+              <li>手机：上滑跳、下滑铲、轻点跳，或用屏幕按钮</li>
+            </ul>
+          </div>
+          <div class="col">
+            <h3>墙壁动作（看提示！）</h3>
+            <ul>
+              <li><b class="c-vault">翻越</b>：快速连按两次 <kbd>↑</kbd></li>
+              <li><b class="c-wallrun">蹬墙</b>：按住 <kbd>↑</kbd> 不放</li>
+              <li><b class="c-slide">滑铲穿洞</b>：按 <kbd>↓</kbd></li>
+              <li><b class="c-smash">破墙</b>：按 <kbd>空格</kbd>/<kbd>X</kbd>（手机按“破”或轻点）</li>
+              <li><b class="c-combo">连招</b>：按顺序输入方向键，如 <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd></li>
+            </ul>
+          </div>
+        </div>
+        <p class="tip">撞到障碍，黑影会逼近；撞墙更危险！跑得干净利落，就能慢慢拉开距离。</p>
+        <button id="btn-start" class="big-btn" type="button">开始游戏</button>
+        <p class="best">最高分：<b id="start-best">0</b></p>
+      </div>
+    </section>
+
+    <!-- 暂停 -->
+    <section id="screen-pause" class="screen hidden">
+      <div class="panel small">
+        <h2>已暂停</h2>
+        <button id="btn-resume" class="big-btn" type="button">继续</button>
+        <button id="btn-quit" class="link-btn" type="button">返回主页</button>
+      </div>
+    </section>
+
+    <!-- 结束界面 -->
+    <section id="screen-over" class="screen hidden">
+      <div class="panel small">
+        <h2>被黑影抓住了！</h2>
+        <p id="over-record" class="record hidden">新纪录！</p>
+        <div class="stats">
+          <div><span>本局分数</span><b id="over-score">0</b></div>
+          <div><span>奔跑距离</span><b id="over-dist">0 米</b></div>
+          <div><span>穿过墙壁</span><b id="over-walls">0 面</b></div>
+          <div><span>最高分</span><b id="over-best">0</b></div>
+        </div>
+        <button id="btn-retry" class="big-btn" type="button">再来一局</button>
+        <button id="btn-home" class="link-btn" type="button">返回主页</button>
+      </div>
+    </section>
+  </div>
+  <div id="rotate-hint">横屏游玩体验更佳</div>
+</div>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

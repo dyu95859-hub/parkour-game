@@ -1,0 +1,89 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #0d0718; color: #fff;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC", "Noto Serif CJK SC", sans-serif;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; touch-action: none; }
+#app { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#stage { position: relative; width: 960px; height: 540px; --u: 9.6px; overflow: hidden; background: #1b1033; box-shadow: 0 0 40px rgba(0,0,0,.6); }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hidden { display: none !important; }
+
+/* 侧边 HUD */
+#hud { position: absolute; right: calc(var(--u) * 1.2); top: calc(var(--u) * 1.2); width: calc(var(--u) * 19);
+  background: rgba(12, 6, 28, .72); border: 2px solid rgba(255, 210, 90, .65); border-radius: calc(var(--u) * 1.2);
+  padding: calc(var(--u) * 1) calc(var(--u) * 1.3); font-size: calc(var(--u) * 1.55); line-height: 1.35;
+  box-shadow: 0 4px 18px rgba(0,0,0,.45); pointer-events: none; }
+.hud-dist { text-align: center; border-bottom: 1px solid rgba(255,255,255,.15); padding-bottom: calc(var(--u) * .5); margin-bottom: calc(var(--u) * .5); }
+.hud-label { font-size: calc(var(--u) * 1.6); color: #ffd25a; letter-spacing: .2em; }
+.hud-big { font-size: calc(var(--u) * 4.2); font-weight: 800; line-height: 1.05; color: #fff; text-shadow: 0 2px 0 #e0592a, 0 0 12px rgba(255,140,60,.6); font-variant-numeric: tabular-nums; }
+.hud-big small { font-size: calc(var(--u) * 1.8); margin-left: .2em; color: #ffd25a; text-shadow: none; }
+.hud-row { display: flex; justify-content: space-between; align-items: baseline; }
+.hud-row span { color: #cfc4ef; }
+.hud-row b { font-variant-numeric: tabular-nums; font-size: 1.12em; }
+.hud-wall, .hud-chaser { margin-top: calc(var(--u) * .5); }
+.bar { height: calc(var(--u) * .8); background: rgba(255,255,255,.15); border-radius: 99px; overflow: hidden; margin-top: 3px; }
+.bar i { display: block; height: 100%; width: 50%; background: linear-gradient(90deg, #ffd25a, #ff8a3c); border-radius: 99px; }
+.bar.danger i { background: #5be38a; transition: background .3s; }
+.hud-chaser.alert b { color: #ff5470; animation: blink .5s infinite alternate; }
+@keyframes blink { from { opacity: 1; } to { opacity: .35; } }
+
+/* 顶部按钮 */
+#topbar { position: absolute; left: calc(var(--u) * 1.2); top: calc(var(--u) * 1.2); display: flex; gap: calc(var(--u) * .6); z-index: 12; }
+.tb { font: inherit; font-size: calc(var(--u) * 1.35); color: #fff; background: rgba(12,6,28,.65); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 99px; padding: calc(var(--u) * .35) calc(var(--u) * 1.1); cursor: pointer; }
+.tb.off { color: #9a90b8; text-decoration: line-through; }
+.tb:hover { background: rgba(60,30,110,.8); }
+
+/* 触屏按钮 */
+#touch { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 1.2); display: flex; justify-content: space-between; padding: 0 calc(var(--u) * 1.4); pointer-events: none; z-index: 5; }
+.tgroup { display: flex; gap: calc(var(--u) * 1); align-items: flex-end; }
+.tbtn { pointer-events: auto; touch-action: none; width: calc(var(--u) * 8); height: calc(var(--u) * 8); border-radius: 50%; font: inherit; font-size: calc(var(--u) * 3.4);
+  font-weight: 800; color: #fff; background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.5); }
+.tbtn.big { width: calc(var(--u) * 10); height: calc(var(--u) * 10); }
+.tbtn.smash { background: rgba(255,90,60,.3); font-size: calc(var(--u) * 2.8); }
+.tbtn.on { background: rgba(255,210,90,.55); }
+
+/* 界面 */
+.screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(10,4,24,.62); z-index: 10; }
+.panel { width: 86%; max-height: 94%; overflow: auto; background: linear-gradient(160deg, rgba(40,20,80,.95), rgba(20,10,40,.95)); border: 2px solid #ffd25a;
+  border-radius: calc(var(--u) * 1.6); padding: calc(var(--u) * 2) calc(var(--u) * 3); text-align: center; font-size: calc(var(--u) * 1.5); box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+.panel.small { width: 50%; }
+.panel h1 { font-size: calc(var(--u) * 6); letter-spacing: .15em; color: #ffd25a; text-shadow: 0 4px 0 #b8381e, 0 0 24px rgba(255,120,60,.7); margin-bottom: calc(var(--u) * .6); }
+.panel h1::before { content: "《"; } .panel h1::after { content: "》"; }
+.panel h2 { font-size: calc(var(--u) * 3.4); color: #ff6a6a; margin-bottom: calc(var(--u) * 1); }
+.panel .sub { color: #e8e0ff; margin-bottom: calc(var(--u) * 1.2); }
+.cols { display: flex; gap: calc(var(--u) * 2); text-align: left; }
+.col { flex: 1; background: rgba(0,0,0,.25); border-radius: calc(var(--u) * 1); padding: calc(var(--u) * .9) calc(var(--u) * 1.3); }
+.col h3 { font-size: calc(var(--u) * 1.7); color: #ffd25a; margin-bottom: calc(var(--u) * .4); }
+.col ul { list-style: none; } .col li { margin: calc(var(--u) * .3) 0; font-size: calc(var(--u) * 1.4); }
+kbd { display: inline-block; min-width: 1.6em; padding: 0 .35em; margin: 0 .1em; border-radius: .3em; background: #fff; color: #2a1650; font: inherit; font-weight: 700; text-align: center; font-size: .9em; box-shadow: 0 2px 0 #9b8cc9; }
+.c-vault { color: #6fd3ff; } .c-wallrun { color: #9dff7a; } .c-slide { color: #ffd25a; } .c-smash { color: #ff7b5c; } .c-combo { color: #e58cff; }
+.tip { color: #ffb7a0; margin: calc(var(--u) * 1.1) 0; }
+.big-btn { font: inherit; font-size: calc(var(--u) * 2.4); font-weight: 800; color: #2a1200; background: linear-gradient(#ffe07a, #ff9a3c); border: none; border-radius: 99px;
+  padding: calc(var(--u) * .8) calc(var(--u) * 4); cursor: pointer; box-shadow: 0 5px 0 #b8541e; margin: calc(var(--u) * .4) 0; }
+.big-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #b8541e; }
+.link-btn { display: block; margin: calc(var(--u) * .8) auto 0; font: inherit; color: #cfc4ef; background: none; border: none; text-decoration: underline; cursor: pointer; }
+.best { margin-top: calc(var(--u) * .6); color: #cfc4ef; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * .8); margin: calc(var(--u) * 1) 0 calc(var(--u) * 1.5); }
+.stats div { background: rgba(0,0,0,.3); border-radius: calc(var(--u) * .8); padding: calc(var(--u) * .7); }
+.stats span { display: block; color: #cfc4ef; font-size: .9em; } .stats b { font-size: calc(var(--u) * 2.6); color: #fff; }
+.record { color: #ffd25a; font-size: calc(var(--u) * 2.4); font-weight: 800; animation: blink .4s infinite alternate; }
+#rotate-hint { display: none; }
+
+/* 竖屏：画面置顶，HUD 与触屏按钮移到画面下方 */
+body.portrait #app { align-items: flex-start; }
+body.portrait #rotate-hint { display: block; position: fixed; left: 0; right: 0; top: calc(var(--stage-h) + 1vw); text-align: center; font-size: 3.4vw; color: #ffd25a; }
+body.portrait #hud { position: fixed; left: 2vw; right: 2vw; top: calc(var(--stage-h) + 6vw); width: auto; font-size: 4vw; display: grid; grid-template-columns: 1fr 1fr; column-gap: 4vw; padding: 2vw 3vw; border-radius: 3vw; }
+body.portrait #hud.hidden { display: none !important; }
+body.portrait .hud-dist { grid-column: 1 / -1; }
+body.portrait .hud-label { font-size: 4vw; } body.portrait .hud-big { font-size: 11vw; } body.portrait .hud-big small { font-size: 5vw; }
+body.portrait .hud-wall, body.portrait .hud-chaser { grid-column: 1 / -1; }
+body.portrait .bar { height: 2vw; }
+body.portrait #touch { position: fixed; bottom: 4vw; padding: 0 4vw; }
+body.portrait .tbtn { width: 17vw; height: 17vw; font-size: 7vw; } body.portrait .tbtn.big { width: 21vw; height: 21vw; }
+body.portrait .screen { position: fixed; }
+body.portrait #topbar { position: fixed; }
+body.portrait .panel, body.portrait .panel.small { width: 94%; font-size: 3.6vw; }
+body.portrait .panel h1 { font-size: 10vw; } body.portrait .panel h2 { font-size: 7vw; }
+body.portrait .cols { flex-direction: column; } body.portrait .col li, body.portrait .col h3 { font-size: 3.6vw; }
+body.portrait .big-btn { font-size: 6vw; } body.portrait .stats b { font-size: 6vw; }
+body.portrait #topbar .tb { font-size: 3.2vw; }
